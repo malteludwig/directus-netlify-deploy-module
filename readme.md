@@ -46,20 +46,20 @@ The Key of the localStorage that will hold the access token in your browser. Sho
 
 ```js
 output: {
-        format: 'es',
-        file: 'dist/index.js',
-    }
+    format: 'es',
+    file: 'dist/index.js',
+}
 ```
 
 -   and the destination within your directus installation:
 
 ```js
 copy({
-            targets: [{
-                src: 'dist/index.js',
-                dest: '../../directus/extensions/modules/netlify-deploy'
-            }],
-        }),
+    targets: [{
+        src: 'dist/index.js',
+        dest: '../../directus/extensions/modules/netlify-deploy'
+    }],
+}),
 ```
 
 change the destination to fit your directus installation:
@@ -70,16 +70,19 @@ change the destination to fit your directus installation:
 
 ```js
 replace({
-            // see .env
-            CLIENT_ID: JSON.stringify(process.env.NETLIFY_CLIENT_ID),
-            SITE_ID: JSON.stringify(process.env.NETLIFY_SITE_ID),
-            NETLIFY_TOKEN_STORAGE_ID: JSON.stringify(process.env.NETLIFY_TOKEN_STORAGE_ID),
-        }),
+    CLIENT_ID: JSON.stringify(process.env.NETLIFY_CLIENT_ID),
+    SITE_ID: JSON.stringify(process.env.NETLIFY_SITE_ID),
+    NETLIFY_TOKEN_STORAGE_ID: JSON.stringify(process.env.NETLIFY_TOKEN_STORAGE_ID),
+}),
 ```
 
 **CAUTION!**
-During the build process rollup will replace the vars (clientId and siteId) used in module.vue with json.stringified values from your .env.
-**They will be exposed in diretus sources even if NOT logged in!** Search for it in index.js...
+During the build process rollup will replace the vars
+
+(clientId and siteId) used in module.vue with json.stringified values from your .env.
+
+**The vars will be exposed in diretus sources even if NOT logged in!**
+(see dist/index.js...) so be carefull.
 
 The Build Hook URL is not exposed because we load it from the netlify API.
 
@@ -104,28 +107,33 @@ yarn rollup -c -w
 ```
 
 Rollup will copy the built index.js to directus/extensions/modules/netlify-deploy.
+
 Directus will automatically recognize and display the module.
 
 ## Usage
 
 You will first need to authenticate the app with netlify.
-Netlify will send back an access token that will be stored in localStorage
+
+Netlify will send back an access token that will be stored in localStorage.
+
 Clicking the deploy button will call the BuildHook URL and trigger the buils script on netlify.
 
 ## Preview changes
 
-Preview button open the site url with `preview`
+Preview button will call
 
 ```html
 https://YOURSITE.netlify.app/?preview
 ```
 
-nuxt.js preview mode for target:static
+the preview params can be used to enable preview mode in your application.
 
-`plugins/preview.client`
+I.e. enable nuxt preview mode for static sites:
+
+`plugins/preview.client.js`
 
 ```js
-export default ({ query, enablePreview, store }) => {
+export default ({ query, enablePreview }) => {
     if (typeof query.preview !== 'undefined') {
         console.log('PREVIEW MODE ENABLED');
         enablePreview();
@@ -137,11 +145,11 @@ in preview mode a static nuxt app will make API calls
 
 `nuxt.config.js`
 
-````js
+```js
  plugins: [
         { src: '~/plugins/preview.client.js' },
     ],
-    ```
-````
+
+```
 
 see: https://nuxtjs.org/docs/2.x/features/live-preview/
