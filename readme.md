@@ -1,7 +1,6 @@
-# deploy on netlify module 
+# deploy on netlify module
 
 use with directus 9 (tested with rc.30)
-
 
 ## Config
 
@@ -56,7 +55,10 @@ output: {
 
 ```js
 copy({
-            targets: [{ src: 'dist/index.js', dest: '../../directus/extensions/modules/netlify-deploy' }],
+            targets: [{
+                src: 'dist/index.js',
+                dest: '../../directus/extensions/modules/netlify-deploy'
+            }],
         }),
 ```
 
@@ -76,8 +78,8 @@ replace({
 ```
 
 **CAUTION!**
-During the build process Rollup will replace the Vars (ClientId and SiteId) used in module.vue with json.stringified values from your .env.
-They will be visible in diretus sources even if NOT logged in! Search for it in index.js...
+During the build process rollup will replace the vars (clientId and siteId) used in module.vue with json.stringified values from your .env.
+**They will be exposed in diretus sources even if NOT logged in!** Search for it in index.js...
 
 The Build Hook URL is not exposed because we load it from the netlify API.
 
