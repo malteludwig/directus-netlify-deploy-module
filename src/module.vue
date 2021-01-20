@@ -23,11 +23,6 @@
                 </span>
             </v-info>
 
-            <!-- <div v-if="access_token"> -->
-            <!-- <div>
-                    <span v-if="processing">{{ buildInfo }}</span>
-                </div>
-                <br /><br /><br /> -->
             <v-table
                 v-if="access_token && !error"
                 :headers="[
@@ -89,7 +84,6 @@
                             class="subdued font-light"
                         /> -->
                     </div>
-                    <!-- </span> -->
                 </template>
 
                 <template #item.deploy_time="{ item }">
@@ -101,7 +95,6 @@
                     <img :src="item.screenshot_url" role="presentation" class="deploy-screenshot" />
                 </template>
             </v-table>
-            <!-- </div> -->
         </div>
     </private-view>
 </template>
@@ -498,8 +491,6 @@ export default {
         &.uploaded,
         &.uploading,
         &.building {
-            // color: var(--warning);
-
             -webkit-animation: spin 2s linear infinite;
             -moz-animation: spin 2s linear infinite;
             animation: spin 2s linear infinite;
