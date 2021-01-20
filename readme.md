@@ -141,8 +141,6 @@ export default ({ query, enablePreview }) => {
 };
 ```
 
-in preview mode a static nuxt app will make API calls
-
 `nuxt.config.js`
 
 ```js
@@ -151,5 +149,7 @@ in preview mode a static nuxt app will make API calls
 ],
 
 ```
+
+in preview mode nuxt will excecute API calls.
 
 see: https://nuxtjs.org/docs/2.x/features/live-preview/
