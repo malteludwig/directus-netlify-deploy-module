@@ -147,8 +147,8 @@ in preview mode a static nuxt app will make API calls
 
 ```js
  plugins: [
-        { src: '~/plugins/preview.client.js' },
-    ],
+    { src: '~/plugins/preview.client.js' },
+],
 
 ```
 
