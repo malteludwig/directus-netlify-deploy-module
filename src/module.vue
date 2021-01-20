@@ -36,13 +36,8 @@
                     {
                         text: 'State',
                         value: 'state',
-                        width: 120,
+                        width: 100,
                         align: 'center',
-                    },
-                    {
-                        text: 'Title',
-                        value: 'title',
-                        width: 550,
                     },
                     {
                         text: 'Date',
@@ -50,9 +45,14 @@
                         width: 200,
                     },
                     {
+                        text: 'Title',
+                        value: 'title',
+                        width: 400,
+                    },
+                    {
                         text: 'Deployed in',
                         value: 'deploy_time',
-                        width: 200,
+                        width: 150,
                     },
                     {
                         text: 'Screenshot',
@@ -67,7 +67,7 @@
             >
                 <template #item.state="{ item }">
                     <div class="deploy-state">
-                        <v-icon :class="item.state" :name="deployState(item.state)" right />
+                        <v-icon :class="item.state" :name="deployState(item.state)" />
 
                         <!-- <div class="deploy-state__label font-light" v-if="item.state">
                             {{ item.state }}

@@ -109,4 +109,39 @@ Directus will automatically recognize and display the module.
 ## Usage
 
 You will first need to authenticate the app with netlify.
-Netlify will send back an access token that will be store in localStorage
+Netlify will send back an access token that will be stored in localStorage
+Clicking the deploy button will call the BuildHook URL and trigger the buils script on netlify.
+
+## Preview changes
+
+Preview button open the site url with `preview`
+
+```html
+https://YOURSITE.netlify.app/?preview
+```
+
+nuxt.js preview mode for target:static
+
+`plugins/preview.client`
+
+```js
+export default ({ query, enablePreview, store }) => {
+    if (typeof query.preview !== 'undefined') {
+        console.log('PREVIEW MODE ENABLED');
+        enablePreview();
+    }
+};
+```
+
+in preview mode a static nuxt app will make API calls
+
+`nuxt.config.js`
+
+````js
+ plugins: [
+        { src: '~/plugins/preview.client.js' },
+    ],
+    ```
+````
+
+see: https://nuxtjs.org/docs/2.x/features/live-preview/
