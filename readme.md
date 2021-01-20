@@ -1,4 +1,7 @@
-# netlify-deploy Extension
+# deploy on netlify module 
+
+use with directus 9 (tested with rc.30)
+
 
 ## Config
 
@@ -38,7 +41,7 @@ NETLIFY_TOKEN_STORAGE_ID="..."
 
 The Key of the localStorage that will hold the access token in your browser. Should probably be obfuscated. ie: (sdifou0e4ut3wjnkl3q48r9)
 
-### 3. _rollup.config.js:_
+### 3. rollup.config.js:
 
 -   configure your output destination i.e::
 
