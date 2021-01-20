@@ -4,7 +4,7 @@ use with directus 9 (tested with rc.30)
 
 ## Config
 
-### 1. On netlify.com
+### `1. On netlify.com`
 
 1. create a new application: https://app.netlify.com/user/applications
 
@@ -14,7 +14,7 @@ as Redirect URI.
 
 2. create a deploy hook for your site (https://app.netlify.com/sites/YOURSITE/settings/deploys > Build Hook)
 
-### 2. Create environment variables
+### `2. Create environment variables`
 
 -   Create a .env file at the root of the repository.
 
@@ -40,7 +40,7 @@ NETLIFY_TOKEN_STORAGE_ID="..."
 
 The Key of the localStorage that will hold the access token in your browser. Should probably be obfuscated. ie: (sdifou0e4ut3wjnkl3q48r9)
 
-### 3. rollup.config.js:
+### `3. rollup.config.js`:
 
 -   configure your output destination i.e::
 

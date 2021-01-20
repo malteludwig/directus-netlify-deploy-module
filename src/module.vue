@@ -9,8 +9,15 @@
                     <v-icon name="cloud_upload" left /> {{ $t('deploy') }}
                 </v-button>
             </v-info>
-            <v-info icon="privacy_tip" :title="$t('not_authenticated')" type="info" class="center" v-if="!access_token">
-                <p class="content">{{ $t('authorize_message') }}{{ `sdfsdf${access_token}` }}</p>
+
+            <v-info
+                icon="privacy_tip"
+                :title="$t('authentication_necessary')"
+                type="info"
+                class="center"
+                v-if="!access_token"
+            >
+                <p class="content">{{ $t('authorize_message') }}</p>
                 <v-button :href="authHref" :target="'_self'"> {{ $t('authorize') }} </v-button>
             </v-info>
 
@@ -109,6 +116,7 @@ export default {
         // `i18n` option, setup locale info for component
         messages: {
             en: {
+                authentication_necessary: 'Authentication required',
                 authorize_message: 'You must authorize with netlify before you can publish content.',
                 deploy_message: 'Deploy changes to netlify',
                 authorize: 'Authorize',
@@ -129,6 +137,7 @@ export default {
                 },
             },
             fr: {
+                authentication_necessary: 'Authentification nécessaire',
                 authorize_message: `Pour publier le contenu il faut activer l'Authentification auprès de netlify.`,
                 deploy_message: 'Publier sur netlify',
                 authorize: 'Authentification',
@@ -149,7 +158,8 @@ export default {
                 },
             },
             de: {
-                authorize_message: 'Bei netlify authentifizieren um Inhalte zu veröffentlichen.',
+                authentication_necessary: 'Authentifizierung nötig',
+                authorize_message: 'Über netlify authentifizieren um Inhalte zu veröffentlichen.',
                 deploy_message: 'Veröffentlichen auf netlify',
                 authorize: 'Authentifizieren',
                 preview: 'Vorschau',
