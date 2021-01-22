@@ -108,7 +108,7 @@
 
 <script>
 import axios from 'axios';
-import moment from 'moment';
+// import moment from 'moment';
 
 export default {
     name: 'deploy-to-netlify',
@@ -189,9 +189,9 @@ export default {
             activeBuildState: '',
             buildInfo: '',
             access_token: null,
-            CLIENT_ID: '', // see rollup.config.js
-            SITE_ID: '', // see rollup.config.js
-            NETLIFY_TOKEN_STORAGE_ID: '',
+            netlifyClientID: '',
+            netlifySiteId: '',
+            netlifyTokenStorageId: 'netlify_app_token',
             buildHook: null,
             client: null,
             authHref: '',
@@ -200,12 +200,17 @@ export default {
             error: '',
         };
     },
-    mounted() {
+    created() {
+        console.log(this);
+    },
+    async mounted() {
+        // load netlify vars from custom api endpoint
+        await this.getVars();
+
         // if there is a hash in the url netlify has redirected to this page
         const hash = document.location.hash;
-        if (localStorage.getItem(NETLIFY_TOKEN_STORAGE_ID)) {
-            this.access_token = localStorage.getItem(NETLIFY_TOKEN_STORAGE_ID);
-            // console.log(this.access_token);
+        if (localStorage.getItem(this.netlifyTokenStorageId)) {
+            this.access_token = localStorage.getItem(this.netlifyTokenStorageId);
             this.loadDeployData();
             this.getSiteInfo();
         } else if (hash) {
@@ -215,16 +220,25 @@ export default {
         }
     },
     methods: {
+        async getVars() {
+            const response = await axios.get('/custom/netlify-deploy');
+            this.netlifyClientID = response.data.netlifyClientID;
+            this.netlifySiteId = response.data.netlifySiteId;
+            // this.netlifyTokenStorageId = response.data.netlifyTokenStorageId;
+        },
+
         initAuthInfo() {
             // We generate a random state that we'll validate when Netlify redirects back to
             // our app.
+
             const redirectURI = document.location.href;
             this.state = Math.random();
             localStorage.setItem(this.state, true);
+
             this.authHref =
                 'https://app.netlify.com/authorize?' +
                 'client_id=' +
-                CLIENT_ID +
+                this.netlifyClientID +
                 '&response_type=token' +
                 '&redirect_uri=' +
                 redirectURI +
@@ -254,12 +268,13 @@ export default {
                 alert('You are not authorized to do this.');
                 return;
             }
+
             // clear local storage
             localStorage.removeItem(response.state);
             this.access_token = response.access_token;
 
-            // save access token for later use
-            localStorage.setItem(NETLIFY_TOKEN_STORAGE_ID, response.access_token);
+            // store access token for later use
+            localStorage.setItem(this.netlifyTokenStorageId, response.access_token);
 
             // start loading
             this.loadDeployData();
@@ -297,7 +312,12 @@ export default {
          */
         async loadDeployData() {
             axios
-                .get('https://api.netlify.com/api/v1/sites/' + SITE_ID + '/deploys?access_token=' + this.access_token)
+                .get(
+                    'https://api.netlify.com/api/v1/sites/' +
+                        this.netlifySiteId +
+                        '/deploys?access_token=' +
+                        this.access_token
+                )
                 .then((response) => {
                     this.updateDeployData(response.data);
                 })
@@ -333,7 +353,9 @@ export default {
         async getSiteInfo() {
             this.processing = true;
             axios
-                .get('https://api.netlify.com/api/v1/sites/' + SITE_ID + '?access_token=' + this.access_token)
+                .get(
+                    'https://api.netlify.com/api/v1/sites/' + this.netlifySiteId + '?access_token=' + this.access_token
+                )
                 .then((response) => {
                     this.handlePreviewURL(response.data);
                 })
@@ -350,7 +372,10 @@ export default {
             const that = this;
             axios
                 .get(
-                    'https://api.netlify.com/api/v1/sites/' + SITE_ID + '/build_hooks?access_token=' + this.access_token
+                    'https://api.netlify.com/api/v1/sites/' +
+                        this.netlifySiteId +
+                        '/build_hooks?access_token=' +
+                        this.access_token
                 )
                 .then((response) => {
                     that.buildHook = response.data[0].url;

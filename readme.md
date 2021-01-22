@@ -1,44 +1,41 @@
-# deploy on netlify module
-
-use with directus 9 (tested with rc.30)
+# Netlify-deploy module for directus 9
 
 ## Config
 
 ### `1. On netlify.com`
 
-1. create a new application: https://app.netlify.com/user/applications
+1. create a new application here: https://app.netlify.com/user/applications
 
-and use http://localhost:8055/admin/netlify-deploy/ (http://DIRECTUS_URL/admin/netlify-deploy/)
-
-as Redirect URI.
+    use http://DIRECTUS_URL/admin/netlify-deploy/ as Redirect URI.
 
 2. create a deploy hook for your site (https://app.netlify.com/sites/YOURSITE/settings/deploys > Build Hook)
 
 ### `2. Create environment variables`
 
--   Create a .env file at the root of the repository.
+-   Add the following vars to directus/.env:
 
-    **Make sure you add it to your .gitignore file**
+    -   Holds the Client ID of your netlify application you created earlier, can be found here: https://app.netlify.com/user/applications
 
--   Add the following vars to your .env:
+        ```
+        NETLIFY_CLIENT_ID="..."
+        ```
 
-```
-NETLIFY_CLIENT_ID="..."
-```
+    -   ID of your site, can be found here: https://app.netlify.com/sites/YOURSITE/settings/general > API ID
 
-Fill with the Client ID of the netlify application you created earlier, can be found here: https://app.netlify.com/user/applications
+        ```
+        NETLIFY_SITE_ID="..."
+        ```
 
-```
-NETLIFY_SITE_ID="..."
-```
+    -   Optional: The Key of the localStorage that will hold the access token in your browser. Should probably be obfuscated.
+        ```
+        NETLIFY_TOKEN_STORAGE_ID="..."
+        ```
 
-Fill with de id of your site, can be found here: https://app.netlify.com/sites/YOURSITE/settings/general > API ID
+ie: (sdifou0e4ut3wjnkl3q48r9)
 
-```
-NETLIFY_TOKEN_STORAGE_ID="..."
-```
+TODO:
 
-The Key of the localStorage that will hold the access token in your browser. Should probably be obfuscated. ie: (sdifou0e4ut3wjnkl3q48r9)
+-   [ ] Use buildHook Url from .env?
 
 ### `3. rollup.config.js`:
 
@@ -51,40 +48,26 @@ output: {
 }
 ```
 
--   and the destination within your directus installation:
+-   and the destination to your directus installation
+
+    [path-to]/directus/extensions/modules/netlify-deploy
 
 ```js
-copy({
-    targets: [{
-        src: 'dist/index.js',
-        dest: '../../directus/extensions/modules/netlify-deploy'
-    }],
-}),
+ copy({
+        targets: [
+            {
+                src: 'dist/modules/netlify-deploy/index.js',
+                dest: '../../directus/extensions/modules/netlify-deploy',
+            },
+            {
+                src: 'dist/endpoints/netlify-deploy/index.js',
+                dest: '../../directus/extensions/endpoints/netlify-deploy',
+            },
+        ],
+    }),
 ```
 
-change the destination to fit your directus installation:
-
-```html
-[path-to]/directus/extensions/modules/netlify-deploy
-```
-
-```js
-replace({
-    CLIENT_ID: JSON.stringify(process.env.NETLIFY_CLIENT_ID),
-    SITE_ID: JSON.stringify(process.env.NETLIFY_SITE_ID),
-    NETLIFY_TOKEN_STORAGE_ID: JSON.stringify(process.env.NETLIFY_TOKEN_STORAGE_ID),
-}),
-```
-
-**CAUTION!**
-During the build process rollup will replace the vars
-
-(clientId and siteId) used in module.vue with json.stringified values from your .env.
-
-**The vars will be exposed in diretus sources even if NOT logged in!**
-(see dist/index.js...) so be carefull.
-
-The Build Hook URL is not exposed because we load it from the netlify API.
+---
 
 ## Build and install
 
@@ -108,7 +91,15 @@ yarn rollup -c -w
 
 Rollup will copy the built index.js to directus/extensions/modules/netlify-deploy.
 
+Restart Directus
+
+```
+yarn directus start
+```
+
 Directus will automatically recognize and display the module.
+
+---
 
 ## Usage
 

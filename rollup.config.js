@@ -8,28 +8,35 @@ import replace from '@rollup/plugin-replace';
 import dotenv from 'dotenv';
 dotenv.config();
 
-export default {
-    input: 'src/index.js',
-    output: {
-        format: 'es',
-        file: 'dist/index.js',
+export default [
+    {
+        input: 'src/index.js',
+        output: {
+            format: 'es',
+            file: 'dist/modules/netlify-deploy/index.js',
+        },
+        plugins: [json(), terser(), resolve({ jsnext: true, preferBuiltins: true, browser: true }), commonjs(), vue()],
     },
-    plugins: [
-        // fill-in vars in module.vue
-        replace({
-            // see .env
-            CLIENT_ID: JSON.stringify(process.env.NETLIFY_CLIENT_ID),
-            SITE_ID: JSON.stringify(process.env.NETLIFY_SITE_ID),
-            NETLIFY_TOKEN_STORAGE_ID: JSON.stringify(process.env.NETLIFY_TOKEN_STORAGE_ID),
-        }),
-        json(),
-        terser(),
-        resolve({ jsnext: true, preferBuiltins: true, browser: true }),
-        commonjs(),
-        vue(),
-
-        copy({
-            targets: [{ src: 'dist/index.js', dest: '../../directus/extensions/modules/netlify-deploy' }],
-        }),
-    ],
-};
+    {
+        input: 'src/endpoints/netlify-deploy/index.js',
+        output: {
+            file: 'dist/endpoints/netlify-deploy/index.js',
+        },
+        plugins: [
+            resolve({ jsnext: true, preferBuiltins: true, browser: true }),
+            commonjs(),
+            copy({
+                targets: [
+                    {
+                        src: 'dist/modules/netlify-deploy/index.js',
+                        dest: '../../directus/extensions/modules/netlify-deploy',
+                    },
+                    {
+                        src: 'dist/endpoints/netlify-deploy/index.js',
+                        dest: '../../directus/extensions/endpoints/netlify-deploy',
+                    },
+                ],
+            }),
+        ],
+    },
+];
