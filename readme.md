@@ -14,9 +14,17 @@ NETLIFY_SITE_ID=""
 NETLIFY_BUILD_HOOK=""
 ```
 
--   NETLIFY_ACCESS_TOKEN: Your Netlify API Access token. Create one here for your site: https://app.netlify.com/user/applications#personal-access-tokens
--   NETLIFY_SITE_ID: ID of your site, can be found here: https://app.netlify.com/sites/YOURSITE/settings/general > API ID
--   NETLIFY_BUILD_HOOK: Build Hook Url. Create one here: (https://app.netlify.com/sites/YOURSITE/settings/deploys > Build Hook)
+-   `NETLIFY_ACCESS_TOKEN:`
+
+    Your Netlify API Access token. Create one here for your site: https://app.netlify.com/user/applications#personal-access-tokens
+
+-   `NETLIFY_SITE_ID:`
+
+    ID of your site, can be found here: https://app.netlify.com/sites/YOURSITE/settings/general > API ID
+
+-   `NETLIFY_BUILD_HOOK:`
+
+    Build Hook Url. Create one here: (https://app.netlify.com/sites/YOURSITE/settings/deploys > Build Hook)
 
 ## 2. rollup.config.js:
 
