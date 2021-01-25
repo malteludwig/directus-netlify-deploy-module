@@ -2,7 +2,7 @@
 
 ## Config
 
-### `1. Create environment variables`
+## 1. Add environment variables
 
 -   Add the following vars to directus/.env:
 
@@ -24,7 +24,7 @@
         NETLIFY_BUILD_HOOK="..."
         ```
 
-### `2. rollup.config.js`:
+## 2. rollup.config.js:
 
 -   configure your output destination i.e::
 
@@ -56,7 +56,7 @@ output: {
 
 ---
 
-### 3. Build and install
+## 3. Build and install
 
 Install dependencies:
 
