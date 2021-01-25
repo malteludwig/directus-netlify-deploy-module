@@ -2,17 +2,15 @@
 
 ## Config
 
-### `1. On netlify.com`
-
-1. create a new application here: https://app.netlify.com/user/applications
-
-    use http://DIRECTUS_URL/admin/netlify-deploy/ as Redirect URI.
-
-2. create a deploy hook for your site (https://app.netlify.com/sites/YOURSITE/settings/deploys > Build Hook)
-
-### `2. Create environment variables`
+### `1. Create environment variables`
 
 -   Add the following vars to directus/.env:
+
+    -   Your Netlify API Access token. Create one here for your site: https://app.netlify.com/user/applications#personal-access-tokens
+
+    ```
+    NETLIFY_ACCESS_TOKEN
+    ```
 
     -   Holds the Client ID of your netlify application you created earlier, can be found here: https://app.netlify.com/user/applications
 
@@ -26,13 +24,13 @@
         NETLIFY_SITE_ID="..."
         ```
 
-    -   Build Hook Url:
+    -   Build Hook Url. Create one here: (https://app.netlify.com/sites/YOURSITE/settings/deploys > Build Hook)
 
         ```
         NETLIFY_BUILD_HOOK="..."
         ```
 
-### `3. rollup.config.js`:
+### `2. rollup.config.js`:
 
 -   configure your output destination i.e::
 
@@ -64,7 +62,7 @@ output: {
 
 ---
 
-## Build and install
+### 3. Build and install
 
 Install dependencies:
 
