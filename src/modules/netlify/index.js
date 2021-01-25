@@ -1,7 +1,7 @@
 import ModuleComponent from './module.vue';
 
 export default {
-    id: 'netlify-deploy',
+    id: 'netlify',
     name: 'Publish Site',
     icon: 'cloud_upload',
 

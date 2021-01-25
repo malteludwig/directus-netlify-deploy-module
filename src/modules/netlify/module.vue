@@ -1,7 +1,7 @@
 <template>
     <private-view title="Deploy to netlify">
         <div class="netlify-deploy-module">
-            <v-info icon="cloud_upload" :title="$t('deploy_message')" type="info" v-if="access_token && !error">
+            <v-info icon="cloud_upload" :title="$t('deploy_message')" type="info" v-if="authorized && !error">
                 <v-button :disabled="processing" @click="preview" small>
                     <v-icon name="preview" left /> {{ $t('preview') }}
                 </v-button>
@@ -15,10 +15,9 @@
                 :title="$t('authentication_necessary')"
                 type="info"
                 class="center"
-                v-if="!access_token"
+                v-if="!authorized"
             >
                 <p class="content">{{ $t('authorize_message') }}</p>
-                <v-button :href="authHref" :target="'_self'"> {{ $t('authorize') }} </v-button>
             </v-info>
 
             <v-info icon="warning" :title="$t(error + '.title')" type="danger" v-if="error">
@@ -31,7 +30,7 @@
             </v-info>
 
             <v-table
-                v-if="access_token && !error"
+                v-if="authorized && !error"
                 :headers="[
                     {
                         text: 'State',
@@ -112,6 +111,7 @@ import axios from 'axios';
 
 export default {
     name: 'deploy-to-netlify',
+    inject: ['system'],
     i18n: {
         // `i18n` option, setup locale info for component
         messages: {
@@ -188,11 +188,7 @@ export default {
             activeDeployID: null,
             activeBuildState: '',
             buildInfo: '',
-            access_token: null,
-            netlifyClientID: '',
-            netlifySiteId: '',
-            netlifyTokenStorageId: 'netlify_app_token',
-            buildHook: null,
+            authorized: null,
             client: null,
             authHref: '',
             state: null,
@@ -205,82 +201,11 @@ export default {
     },
     async mounted() {
         // load netlify vars from custom api endpoint
-        await this.getVars();
-
-        // if there is a hash in the url netlify has redirected to this page
-        const hash = document.location.hash;
-        if (localStorage.getItem(this.netlifyTokenStorageId)) {
-            this.access_token = localStorage.getItem(this.netlifyTokenStorageId);
-            this.loadDeployData();
-            this.getSiteInfo();
-        } else if (hash) {
-            this.handleAccessToken();
-        } else {
-            this.initAuthInfo();
-        }
+        // await this.getVars();
+        this.loadDeploys();
+        this.getSiteURL();
     },
     methods: {
-        async getVars() {
-            const response = await axios.get('/custom/netlify-deploy');
-            this.netlifyClientID = response.data.netlifyClientID;
-            this.netlifySiteId = response.data.netlifySiteId;
-            // this.netlifyTokenStorageId = response.data.netlifyTokenStorageId;
-        },
-
-        initAuthInfo() {
-            // We generate a random state that we'll validate when Netlify redirects back to
-            // our app.
-
-            const redirectURI = document.location.href;
-            this.state = Math.random();
-            localStorage.setItem(this.state, true);
-
-            this.authHref =
-                'https://app.netlify.com/authorize?' +
-                'client_id=' +
-                this.netlifyClientID +
-                '&response_type=token' +
-                '&redirect_uri=' +
-                redirectURI +
-                '&state=' +
-                this.state;
-        },
-
-        async handleAccessToken() {
-            console.log('handleAccessToken');
-            // The access token is returned in the hash part of the document.location
-            //   #access_token=1234&response_type=token
-            const response = document.location.hash
-                .replace(/^#/, '')
-                .split('&')
-                .reduce((result, pair) => {
-                    const keyValue = pair.split('=');
-                    result[keyValue[0]] = keyValue[1];
-                    return result;
-                }, {});
-
-            // Remove the token so it's not visible in the URL after we're done
-            document.location.hash = '';
-
-            if (!localStorage.getItem(response.state)) {
-                // We need to verify the random state we set before starting the request,
-                // otherwise this could be an access token from someone else than our user
-                alert('You are not authorized to do this.');
-                return;
-            }
-
-            // clear local storage
-            localStorage.removeItem(response.state);
-            this.access_token = response.access_token;
-
-            // store access token for later use
-            localStorage.setItem(this.netlifyTokenStorageId, response.access_token);
-
-            // start loading
-            this.loadDeployData();
-            this.getSiteInfo();
-        },
-
         updateDeployData(data) {
             this.deploys = data.filter((deploy) => deploy.context === 'production');
             if (this.processing || data[0].state === 'building' || data[0].state === 'enqueued') {
@@ -290,8 +215,8 @@ export default {
             }
         },
 
-        handlePreviewURL(data) {
-            this.previewURL = `${data.url}?preview`;
+        setPreviewURL(siteUrl) {
+            this.previewURL = `${siteUrl}?preview`;
         },
 
         checkBuildState() {
@@ -302,7 +227,7 @@ export default {
             } else {
                 let that = this;
                 setTimeout(() => {
-                    that.loadSingleDeployData(this.activeDeployID);
+                    that.loadSingleDeploy(this.activeDeployID);
                 }, this.refreshDelay);
             }
         },
@@ -310,39 +235,30 @@ export default {
         /*
          *   loads a list of deploys
          */
-        async loadDeployData() {
-            axios
-                .get(
-                    'https://api.netlify.com/api/v1/sites/' +
-                        this.netlifySiteId +
-                        '/deploys?access_token=' +
-                        this.access_token
-                )
-                .then((response) => {
-                    this.updateDeployData(response.data);
-                })
-                .catch((error) => {
-                    this.error = 'deploy_info_error';
-                    // this.initAuthInfo();
-                });
+        async loadDeploys() {
+            this.processing = true;
+            const deploys = await this.system.api.get('/custom/netlify/deploys').catch((error) => {
+                this.error = 'deploy_info_error';
+                this.authorized = false;
+            });
+            this.authorized = true;
+            this.updateDeployData(deploys.data);
+            // this.loadSingleDeploy(deploys.data[0].id);
         },
 
-        /*
+        /*s
          *   loads a single deploy
          */
-        async loadSingleDeployData(deploy_id) {
+        async loadSingleDeploy(deploy_id) {
             if (this.processing) {
-                axios
-                    .get('https://api.netlify.com/api/v1/deploys/' + deploy_id + '?access_token=' + this.access_token)
-                    .then((response) => {
-                        console.log('loadSingleDeployData --- loaded', response);
-                        this.activeBuildState = response.data.state;
-                        this.deploys[0] = response.data;
-                        this.checkBuildState();
-                    })
-                    .catch((error) => {
-                        this.error = 'deploy_info_error';
-                    });
+                const response = await this.system.api.get(`/custom/netlify/deploy?id=${deploy_id}`).catch((error) => {
+                    this.error = 'deploy_info_error';
+                    this.authorized = false;
+                });
+
+                this.activeBuildState = response.data.state;
+                this.deploys[0] = response.data;
+                this.checkBuildState();
             }
         },
 
@@ -350,40 +266,13 @@ export default {
          *   loads site information from netlify api
          */
 
-        async getSiteInfo() {
+        async getSiteURL() {
             this.processing = true;
-            axios
-                .get(
-                    'https://api.netlify.com/api/v1/sites/' + this.netlifySiteId + '?access_token=' + this.access_token
-                )
-                .then((response) => {
-                    this.handlePreviewURL(response.data);
-                })
-                .catch((error) => {
-                    this.error = 'site_info_error';
-                });
-        },
 
-        /*
-         *   loads information about exsting build hook
-         */
-        async getBuildHookId() {
-            this.processing = true;
-            const that = this;
-            axios
-                .get(
-                    'https://api.netlify.com/api/v1/sites/' +
-                        this.netlifySiteId +
-                        '/build_hooks?access_token=' +
-                        this.access_token
-                )
-                .then((response) => {
-                    that.buildHook = response.data[0].url;
-                    that.triggerDeploy();
-                })
-                .catch((error) => {
-                    this.error = 'build_hook_error';
-                });
+            const response = await this.system.api.get('/custom/netlify/url').catch((error) => {
+                this.error = 'site_info_error';
+            });
+            this.setPreviewURL(response.data.site_url);
         },
 
         /*
@@ -391,12 +280,10 @@ export default {
          */
         async triggerDeploy() {
             this.processing = true;
-            axios
-                .post(this.buildHook)
-                .then(this.loadDeployData)
-                .catch((error) => {
-                    this.error = 'build_hook_error';
-                });
+            const response = await this.system.api.get('/custom/netlify/build').catch((error) => {
+                this.error = 'build_hook_error';
+            });
+            this.loadDeploys();
         },
 
         onRowClick(item) {
@@ -407,9 +294,7 @@ export default {
         },
 
         deploy() {
-            if (!this.buildHook) {
-                this.getBuildHookId();
-            } else {
+            if (this.authorized) {
                 this.triggerDeploy();
             }
         },
@@ -417,18 +302,6 @@ export default {
         preview() {
             window.open(this.previewURL, '_blank');
         },
-
-        // formatDate(date) {
-        //     //   return moment(date).format('DD/MM/YYYY') + ' at '+moment(date).format('hh:mm A')
-        //     return moment(date).calendar(null, {
-        //         sameDay: '[Today at] hh:mm A',
-        //         nextDay: '[Tomorrow]',
-        //         nextWeek: '[Next] dddd',
-        //         lastDay: '[Yesterday at] hh:mm A',
-        //         lastWeek: 'ddd [at] hh:mm A',
-        //         sameElse: 'DD/MM/YYYY',
-        //     });
-        // },
 
         deployState(state) {
             let icon = '';

@@ -10,17 +10,17 @@ dotenv.config();
 
 export default [
     {
-        input: 'src/index.js',
+        input: 'src/modules/netlify/index.js',
         output: {
             format: 'es',
-            file: 'dist/modules/netlify-deploy/index.js',
+            file: 'dist/modules/netlify/index.js',
         },
         plugins: [json(), terser(), resolve({ jsnext: true, preferBuiltins: true, browser: true }), commonjs(), vue()],
     },
     {
-        input: 'src/endpoints/netlify-deploy/index.js',
+        input: 'src/endpoints/netlify/index.js',
         output: {
-            file: 'dist/endpoints/netlify-deploy/index.js',
+            file: 'dist/endpoints/netlify/index.js',
         },
         plugins: [
             resolve({ jsnext: true, preferBuiltins: true, browser: true }),
@@ -28,14 +28,15 @@ export default [
             copy({
                 targets: [
                     {
-                        src: 'dist/modules/netlify-deploy/index.js',
-                        dest: '../../directus/extensions/modules/netlify-deploy',
+                        src: 'dist/modules/netlify/index.js',
+                        dest: '../../directus/extensions/modules/netlify',
                     },
                     {
-                        src: 'dist/endpoints/netlify-deploy/index.js',
-                        dest: '../../directus/extensions/endpoints/netlify-deploy',
+                        src: 'dist/endpoints/netlify/index.js',
+                        dest: '../../directus/extensions/endpoints/netlify',
                     },
                 ],
+                verbose: true,
             }),
         ],
     },

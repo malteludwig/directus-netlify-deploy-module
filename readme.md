@@ -26,16 +26,11 @@
         NETLIFY_SITE_ID="..."
         ```
 
-    -   Optional: The Key of the localStorage that will hold the access token in your browser. Should probably be obfuscated.
+    -   Build Hook Url:
+
         ```
-        NETLIFY_TOKEN_STORAGE_ID="..."
+        NETLIFY_BUILD_HOOK="..."
         ```
-
-ie: (sdifou0e4ut3wjnkl3q48r9)
-
-TODO:
-
--   [ ] Use buildHook Url from .env?
 
 ### `3. rollup.config.js`:
 
@@ -103,21 +98,17 @@ Directus will automatically recognize and display the module.
 
 ## Usage
 
-You will first need to authenticate the app with netlify.
-
-Netlify will send back an access token that will be stored in localStorage.
-
-Clicking the deploy button will call the BuildHook URL and trigger the buils script on netlify.
+Clicking the Deploy button to trigger the BuildHook on netlify.
 
 ## Preview changes
 
-Preview button will call
+Preview button will call your site as preview
 
 ```html
 https://YOURSITE.netlify.app/?preview
 ```
 
-the preview params can be used to enable preview mode in your application.
+the preview param can be used to enable preview mode in your application.
 
 I.e. enable nuxt preview mode for static sites:
 
