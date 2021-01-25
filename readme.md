@@ -1,4 +1,4 @@
-# Netlify-deploy module for directus 9
+# Directus 9 Netlify module for deploys and builds
 
 ## Config
 
@@ -37,18 +37,18 @@ output: {
 
 -   and the destination to your directus installation
 
-    [path-to]/directus/extensions/modules/netlify-deploy
+    [path-to]/directus/extensions/modules/netlify
 
 ```js
  copy({
         targets: [
             {
-                src: 'dist/modules/netlify-deploy/index.js',
-                dest: '../../directus/extensions/modules/netlify-deploy',
+                src: 'dist/modules/netlify/index.js',
+                dest: '../../directus/extensions/modules/netlify',
             },
             {
-                src: 'dist/endpoints/netlify-deploy/index.js',
-                dest: '../../directus/extensions/endpoints/netlify-deploy',
+                src: 'dist/endpoints/netlify/index.js',
+                dest: '../../directus/extensions/endpoints/netlify',
             },
         ],
     }),
@@ -76,7 +76,7 @@ Watch for developing:
 yarn watch
 ```
 
-Rollup will copy the built index.js to directus/extensions/modules/netlify-deploy.
+Rollup will copy the built index.js to directus/extensions/modules/netlify.
 
 Restart Directus
 
