@@ -2,17 +2,17 @@
 
 ## Routes
 
-`GET: '/deploys'`
+`GET: /deploys`
 
 Doc: https://open-api.netlify.com/#operation/listSiteDeploys
 
-`GET: '/deploy'`, param: `id`: netlify deploy-id
+`GET: /deploy`, param: `id`: netlify deploy-id
 
 Doc: https://open-api.netlify.com/#operation/getSiteDeploy
 
-`GET: '/url'`
+`GET: /url`
 
 Doc: https://open-api.netlify.com/#operation/getSite
 
-`POST: '/build'`
+`POST: /build`
 Call Build Hook
