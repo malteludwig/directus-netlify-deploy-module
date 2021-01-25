@@ -186,16 +186,13 @@ export default {
             refreshDelay: 1000,
             loading: false,
             activeDeployID: null,
-            activeBuildState: '',
             authorized: null,
             previewURL: '',
             error: '',
             api: null,
         };
     },
-    created() {
-        console.log(this);
-    },
+
     async mounted() {
         this.loading = true;
         this.api = this.system.api;
@@ -207,7 +204,6 @@ export default {
             if (this.deploys[0].state === 'ready') {
                 this.loading = false;
                 this.activeDeployID = null;
-                // this.activeBuildState = null;
             } else {
                 let that = this;
                 setTimeout(() => {
@@ -227,7 +223,6 @@ export default {
             });
             this.authorized = true;
             this.updateDeployData(deploys.data);
-            // this.loadSingleDeploy(deploys.data[0].id);
         },
 
         /*s

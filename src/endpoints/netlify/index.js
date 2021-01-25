@@ -2,9 +2,8 @@
 import axios from 'axios';
 
 module.exports = function registerEndpoint(router, { services, exceptions, env }) {
-    const { AuthenticationService } = services;
-    const { ServiceUnavailableException, ForbiddenException } = exceptions;
-    console.log(exceptions);
+    // const { ServiceUnavailableException, ForbiddenException } = exceptions;
+
     // router.get('/vars', async (req, res, next) => {
     //     var ms = require('ms');
     //     console.log('req', req.accountability);

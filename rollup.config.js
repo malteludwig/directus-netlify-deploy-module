@@ -4,9 +4,6 @@ import resolve from 'rollup-plugin-node-resolve';
 import vue from 'rollup-plugin-vue';
 import json from 'rollup-plugin-json';
 import copy from 'rollup-plugin-copy';
-import replace from '@rollup/plugin-replace';
-import dotenv from 'dotenv';
-dotenv.config();
 
 export default [
     {
