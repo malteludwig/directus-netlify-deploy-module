@@ -8,14 +8,8 @@
 
     -   Your Netlify API Access token. Create one here for your site: https://app.netlify.com/user/applications#personal-access-tokens
 
-    ```
-    NETLIFY_ACCESS_TOKEN
-    ```
-
-    -   Holds the Client ID of your netlify application you created earlier, can be found here: https://app.netlify.com/user/applications
-
         ```
-        NETLIFY_CLIENT_ID="..."
+        NETLIFY_ACCESS_TOKEN
         ```
 
     -   ID of your site, can be found here: https://app.netlify.com/sites/YOURSITE/settings/general > API ID
@@ -73,13 +67,13 @@ yarn
 Build for production:
 
 ```
-yarn rollup -c
+yarn build
 ```
 
-Watch for developping
+Watch for developing:
 
 ```
-yarn rollup -c -w
+yarn watch
 ```
 
 Rollup will copy the built index.js to directus/extensions/modules/netlify-deploy.
