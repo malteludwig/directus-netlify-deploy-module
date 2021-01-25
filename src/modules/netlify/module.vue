@@ -2,15 +2,15 @@
     <private-view title="Deploy to netlify">
         <div class="netlify-deploy-module">
             <v-info icon="cloud_upload" :title="$t('deploy_message')" type="info" v-if="authorized && !error">
-                <v-button :disabled="processing" @click="preview" small>
+                <v-button :disabled="loading" @click="preview" small>
                     <v-icon name="preview" left /> {{ $t('preview') }}
                 </v-button>
-                <v-button :disabled="processing" @click="deploy" small>
+                <v-button :disabled="loading" @click="deploy" small>
                     <v-icon name="cloud_upload" left /> {{ $t('deploy') }}
                 </v-button>
             </v-info>
 
-            <v-info
+            <!-- <v-info
                 icon="privacy_tip"
                 :title="$t('authentication_necessary')"
                 type="info"
@@ -18,7 +18,7 @@
                 v-if="!authorized"
             >
                 <p class="content">{{ $t('authorize_message') }}</p>
-            </v-info>
+            </v-info> -->
 
             <v-info icon="warning" :title="$t(error + '.title')" type="danger" v-if="error">
                 <span
@@ -116,9 +116,9 @@ export default {
         // `i18n` option, setup locale info for component
         messages: {
             en: {
-                authentication_necessary: 'Authentication required',
-                authorize_message: 'You must authorize with netlify before you can publish content.',
-                deploy_message: 'Deploy changes to netlify',
+                authentication_necessary: 'Loading',
+                authorize_message: '',
+                deploy_message: 'Publish',
                 authorize: 'Authorize',
                 preview: 'Preview',
                 deploy: 'Deploy',
@@ -137,9 +137,9 @@ export default {
                 },
             },
             fr: {
-                authentication_necessary: 'Authentification nécessaire',
-                authorize_message: `Pour publier le contenu il faut activer l'Authentification auprès de netlify.`,
-                deploy_message: 'Publier sur netlify',
+                authentication_necessary: 'Chargement',
+                authorize_message: ``,
+                deploy_message: 'Publier',
                 authorize: 'Authentification',
                 preview: 'Apperçu',
                 deploy: 'Publier',
@@ -158,9 +158,9 @@ export default {
                 },
             },
             de: {
-                authentication_necessary: 'Authentifizierung nötig',
-                authorize_message: 'Über netlify authentifizieren um Inhalte zu veröffentlichen.',
-                deploy_message: 'Veröffentlichen auf netlify',
+                authentication_necessary: 'Loading',
+                authorize_message: '',
+                deploy_message: 'Veröffentlichen',
                 authorize: 'Authentifizieren',
                 preview: 'Vorschau',
                 deploy: 'Veröffentlichen',
@@ -184,44 +184,28 @@ export default {
         return {
             deploys: {},
             refreshDelay: 1000,
-            processing: false,
+            loading: false,
             activeDeployID: null,
             activeBuildState: '',
-            buildInfo: '',
             authorized: null,
-            client: null,
-            authHref: '',
-            state: null,
             previewURL: '',
             error: '',
+            api: null,
         };
     },
     created() {
         console.log(this);
     },
     async mounted() {
-        // load netlify vars from custom api endpoint
-        // await this.getVars();
+        this.loading = true;
+        this.api = this.system.api;
         this.loadDeploys();
         this.getSiteURL();
     },
     methods: {
-        updateDeployData(data) {
-            this.deploys = data.filter((deploy) => deploy.context === 'production');
-            if (this.processing || data[0].state === 'building' || data[0].state === 'enqueued') {
-                this.processing = true;
-                this.activeDeployID = data[0].id;
-                this.checkBuildState();
-            }
-        },
-
-        setPreviewURL(siteUrl) {
-            this.previewURL = `${siteUrl}?preview`;
-        },
-
         checkBuildState() {
             if (this.deploys[0].state === 'ready') {
-                this.processing = false;
+                this.loading = false;
                 this.activeDeployID = null;
                 // this.activeBuildState = null;
             } else {
@@ -236,8 +220,8 @@ export default {
          *   loads a list of deploys
          */
         async loadDeploys() {
-            this.processing = true;
-            const deploys = await this.system.api.get('/custom/netlify/deploys').catch((error) => {
+            this.loading = true;
+            const deploys = await this.api.get('/custom/netlify/deploys').catch((error) => {
                 this.error = 'deploy_info_error';
                 this.authorized = false;
             });
@@ -250,8 +234,8 @@ export default {
          *   loads a single deploy
          */
         async loadSingleDeploy(deploy_id) {
-            if (this.processing) {
-                const response = await this.system.api.get(`/custom/netlify/deploy?id=${deploy_id}`).catch((error) => {
+            if (this.loading) {
+                const response = await this.api.get(`/custom/netlify/deploy?id=${deploy_id}`).catch((error) => {
                     this.error = 'deploy_info_error';
                     this.authorized = false;
                 });
@@ -261,29 +245,13 @@ export default {
                 this.checkBuildState();
             }
         },
-
-        /*
-         *   loads site information from netlify api
-         */
-
-        async getSiteURL() {
-            this.processing = true;
-
-            const response = await this.system.api.get('/custom/netlify/url').catch((error) => {
-                this.error = 'site_info_error';
-            });
-            this.setPreviewURL(response.data.site_url);
-        },
-
-        /*
-         *   trigger build hook
-         */
-        async triggerDeploy() {
-            this.processing = true;
-            const response = await this.system.api.get('/custom/netlify/build').catch((error) => {
-                this.error = 'build_hook_error';
-            });
-            this.loadDeploys();
+        updateDeployData(data) {
+            this.deploys = data.filter((deploy) => deploy.context === 'production');
+            if (this.loading || data[0].state === 'building' || data[0].state === 'enqueued') {
+                this.loading = true;
+                this.activeDeployID = data[0].id;
+                this.checkBuildState();
+            }
         },
 
         onRowClick(item) {
@@ -293,12 +261,36 @@ export default {
             }
         },
 
+        /*
+         *   trigger build hook
+         */
+        async triggerDeploy() {
+            this.loading = true;
+            const response = await this.api.get('/custom/netlify/build').catch((error) => {
+                this.error = 'build_hook_error';
+            });
+            this.loadDeploys();
+        },
         deploy() {
             if (this.authorized) {
                 this.triggerDeploy();
             }
         },
 
+        /*
+         *   loads site information from netlify api
+         */
+        async getSiteURL() {
+            this.loading = true;
+
+            const response = await this.api.get('/custom/netlify/url').catch((error) => {
+                this.error = 'site_info_error';
+            });
+            this.setPreviewURL(response.data.site_url);
+        },
+        setPreviewURL(siteUrl) {
+            this.previewURL = `${siteUrl}?preview`;
+        },
         preview() {
             window.open(this.previewURL, '_blank');
         },

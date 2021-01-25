@@ -94,17 +94,17 @@ Directus will automatically recognize and display the module.
 
 Clicking the Deploy button to trigger the BuildHook on netlify.
 
-## Preview changes
+## Live preview
 
-Preview button will call your site as preview
+Preview button will load your site with param `preview`
 
 ```html
 https://YOURSITE.netlify.app/?preview
 ```
 
-the preview param can be used to enable preview mode in your application.
+can be used to enable preview mode in your application.
 
-I.e. enable nuxt preview mode for static sites:
+**Example for Nuxt.js :**
 
 `plugins/preview.client.js`
 
@@ -125,7 +125,5 @@ export default ({ query, enablePreview }) => {
 ],
 
 ```
-
-in preview mode nuxt will excecute API calls.
 
 see: https://nuxtjs.org/docs/2.x/features/live-preview/
