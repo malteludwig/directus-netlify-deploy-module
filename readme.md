@@ -1,4 +1,6 @@
-# Directus 9 Netlify module for deploys and builds
+# Netlify module for Directus 9
+
+shows a list of deploys and add preview and build buttons.
 
 ## Config
 
