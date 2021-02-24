@@ -1,30 +1,24 @@
-# Netlify module for Directus 9
+# scpi-api module for Directus 9
 
 can list deploys, launch a live-preview and trigger a build.
 
+<br>
+
+---
+
 ## Config
+
+<br>
 
 ## 1. Add environment variables
 
 Add the following vars to directus/.env:
 
 ```
-NETLIFY_ACCESS_TOKEN=""
-NETLIFY_SITE_ID=""
-NETLIFY_BUILD_HOOK=""
+SCORE_API_KEY=""
 ```
 
--   `NETLIFY_ACCESS_TOKEN:`
-
-    Your Netlify API Access token. Create one here for your site: https://app.netlify.com/user/applications#personal-access-tokens
-
--   `NETLIFY_SITE_ID:`
-
-    ID of your site, can be found here: https://app.netlify.com/sites/YOURSITE/settings/general > API ID
-
--   `NETLIFY_BUILD_HOOK:`
-
-    Build Hook Url. Create one here: (https://app.netlify.com/sites/YOURSITE/settings/deploys > Build Hook)
+<br>
 
 ## 2. rollup.config.js:
 
@@ -39,22 +33,24 @@ output: {
 
 -   and the destination to your directus installation
 
-    [path-to]/directus/extensions/modules/netlify
+    [path-to-directus]/extensions/modules/scpi-api
 
 ```js
  copy({
         targets: [
             {
-                src: 'dist/modules/netlify/index.js',
-                dest: '../../directus/extensions/modules/netlify',
+                src: 'dist/modules/scpi-api/index.js',
+                dest: '../../extensions/modules/scpi-api',
             },
             {
-                src: 'dist/endpoints/netlify/index.js',
-                dest: '../../directus/extensions/endpoints/netlify',
+                src: 'dist/endpoints/scpi-api/index.js',
+                dest: '../../extensions/endpoints/scpi-api',
             },
         ],
     }),
 ```
+
+<br>
 
 ---
 
@@ -78,9 +74,9 @@ Watch for developing:
 yarn watch
 ```
 
-Rollup will copy the built index.js to directus/extensions/modules/netlify.
+Rollup will copy the built index.js to directus/extensions/modules/scpi-api.
 
-Restart Directus
+**Restart Directus**
 
 ```
 yarn directus start
@@ -88,42 +84,4 @@ yarn directus start
 
 Directus will automatically recognize and display the module.
 
----
-
-## Usage
-
-Clicking the Deploy button to trigger the BuildHook on netlify.
-
-## Live preview
-
-Preview button will load your site with param `preview`
-
-```html
-https://YOURSITE.netlify.app/?preview
-```
-
-can be used to enable preview mode in your application.
-
-**Example for Nuxt.js :**
-
-`plugins/preview.client.js`
-
-```js
-export default ({ query, enablePreview }) => {
-    if (typeof query.preview !== 'undefined') {
-        console.log('PREVIEW MODE ENABLED');
-        enablePreview();
-    }
-};
-```
-
-`nuxt.config.js`
-
-```js
- plugins: [
-    { src: '~/plugins/preview.client.js' },
-],
-
-```
-
-see: https://nuxtjs.org/docs/2.x/features/live-preview/
+<br>
